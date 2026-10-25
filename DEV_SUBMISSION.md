@@ -4,7 +4,7 @@ published: false
 description: "A desktop file organizer built for the DEV 'Slow and Steady' Challenge. Uses Google's open-weight Gemma 2 2B model on localhost to sort messy downloads by content with zero data leaks."
 tags: devchallenge, slowandsteady, gemma, python, opensource
 canonical_url: https://dev.to/anurag-tech22/slothsort-tidying-my-downloads-folder-with-a-local-gemma-model
-cover_image: https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/01_hero_dashboard.png
+cover_image: https://raw.githubusercontent.com/Anurag-tech22/slothsort-/main/docs/screenshots/01_hero_dashboard.png
 ---
 
 *This article is a submission for the [DEV Slow and Steady Challenge: Open Source AI](https://dev.to/challenges/slowandsteady).*
@@ -64,13 +64,21 @@ Slothsort is built with **FastAPI**, **SQLite**, and standard open-source tools:
 
 Here is the clean dashboard after scanning a batch of cluttered files:
 
-![Slothsort Clean Dashboard](https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/01_hero_dashboard.png)
+![Slothsort Clean Dashboard](https://raw.githubusercontent.com/Anurag-tech22/slothsort-/main/docs/screenshots/01_hero_dashboard.png)
 
-And here are the classified proposals:
+And here are the proposals classified by local Gemma:
 
-![Gemma Classified Moves](https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/02_gemma_classified_proposals.png)
+![Gemma Classified Moves](https://raw.githubusercontent.com/Anurag-tech22/slothsort-/main/docs/screenshots/02_gemma_classified_proposals.png)
 
 Look at `scan0042.txt`: instead of rotting in a generic documents folder, Gemma read the text inside, recognized the quarterly GST filing, and proposed `Finance / gst-registration-ledger.txt`.
+
+You can also filter files instantly using the `/` keyboard shortcut:
+
+![Instant Search Filtering](https://raw.githubusercontent.com/Anurag-tech22/slothsort-/main/docs/screenshots/03_instant_search_filtering.png)
+
+And when you approve a move, Slothsort logs the transaction so you can click "Undo" anytime:
+
+![Safe Move Approved with Undo](https://raw.githubusercontent.com/Anurag-tech22/slothsort-/main/docs/screenshots/04_safe_move_applied_undo.png)
 
 ---
 
@@ -177,6 +185,6 @@ Building Slothsort changed how I think about open-weight models:
 - **Slow and steady wins.** You don't need instant millisecond inference when software works in the background on your behalf. 
 
 Source code and tests are fully open source on GitHub:
-👉 **[GitHub Repository: Anurag-tech22/slothsort](https://github.com/Anurag-tech22/slothsort)**
+👉 **[GitHub Repository: Anurag-tech22/slothsort-](https://github.com/Anurag-tech22/slothsort-)**
 
 Let Slothsort do the slow and steady work, and enjoy your clean Downloads folder!

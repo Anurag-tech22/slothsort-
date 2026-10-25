@@ -179,6 +179,18 @@ sequenceDiagram
 
 ---
 
+## 📸 Visual Tour
+
+| Hero Dashboard & Stats | AI Content-Classified Proposals |
+|:---:|:---:|
+| ![Hero Dashboard](docs/screenshots/01_hero_dashboard.png) | ![Classified Proposals](docs/screenshots/02_gemma_classified_proposals.png) |
+
+| Instant Search Filtering (`/` shortcut) | Safe Execution & One-Click Undo |
+|:---:|:---:|
+| ![Instant Search](docs/screenshots/03_instant_search_filtering.png) | ![Approved Moves & Undo](docs/screenshots/04_safe_move_applied_undo.png) |
+
+---
+
 ## 📊 Real Benchmark: Heuristics vs. Gemma 2B
 
 Slothsort includes an automated benchmark suite (`benchmark.py`) with 21 real-world synthetic test cases mixing obvious filenames with deliberately misleading names (e.g., `thing.md` containing CPU scheduling notes, `doc1.txt` containing a cover letter).
