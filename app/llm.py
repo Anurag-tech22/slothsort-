@@ -179,9 +179,9 @@ class OpenAICompatClient(LLMClient):
 
     def ping(self) -> tuple[bool, str]:
         try:
-            models = self._models(timeout=2.0)
+            models = self._models(timeout=5.0)
         except Exception as e:
-            return False, f"no server at {self.base} ({type(e).__name__})"
+            return False, f"offline ({type(e).__name__})"
         if not models:
             return False, "server is running but no model is loaded"
         if self.model and self.model not in models:

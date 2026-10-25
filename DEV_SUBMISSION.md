@@ -1,132 +1,182 @@
 ---
-title: "Slothsort: Channeling My Inner Sloth with Local Gemma Open Weights"
+title: "Slothsort: I Built an Offline File Organizer with Gemma 2 so I Never Have to Sort Downloads Again"
 published: false
-description: "Built for DEV's 'Slow and Steady' Challenge: A local-first, zero-leak file organizer powered by an open-weight Gemma model that sorts and renames the messy downloads you keep putting off."
-tags: devchallenge, slowandsteady, gemma, ai, python
-canonical_url: https://dev.to/anurag/slothsort-channeling-my-inner-sloth-with-local-gemma-open-weights
-cover_image: https://raw.githubusercontent.com/anurag/slothsort/main/docs/screenshots/01_hero_dashboard.png
+description: "A desktop file organizer built for the DEV 'Slow and Steady' Challenge. Uses Google's open-weight Gemma 2 2B model on localhost to sort messy downloads by content with zero data leaks."
+tags: devchallenge, slowandsteady, gemma, python, opensource
+canonical_url: https://dev.to/anurag-tech22/slothsort-tidying-my-downloads-folder-with-a-local-gemma-model
+cover_image: https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/01_hero_dashboard.png
 ---
 
-*This article is a submission for the DEV Challenge: Slow and Steady (celebrating International Sloth Day).*
-
----
-
-## 🦥 The Folder I Kept Putting Off Tidying
-
-Sloths have life figured out: they move at their own pace, conserve energy, and avoid unnecessary effort. 
-
-Meanwhile, my `~/Downloads` folder was pure digital chaos:
-- `scan0042.txt` (a quarterly GST return)
-- `unit3_draft.md` (DBMS lecture notes)
-- `Resume_Royeb_v7 FINAL.txt` (a software engineering resume)
-- `setup_v2.exe`, `sales_export (1).csv`, and mystery `.zip` archives.
-
-Every few weeks, I’d promise myself I’d organize it. But manually clicking through dozens of cryptic files, opening each one to remember what it was, creating folders, and typing clean names is tedious work. 
-
-Traditional file tidiers don't help much either—they only look at file extensions. Putting all `.txt` or `.pdf` files into `Documents/` doesn't solve anything when tax returns, lecture notes, and cover letters end up dumped into the same generic folder.
-
-Yet, sending sensitive tax filings, bank invoices, and medical PDFs to proprietary cloud LLMs over the internet felt like a massive privacy leak.
-
-So, in true sloth spirit, I built **Slothsort**: an intelligent, local-first file organizer with an **open-weight Gemma model** running right on my laptop. It reads what’s actually inside each file, proposes clean categories and meaningful names, and lets me approve or undo everything with a single click.
+*This article is a submission for the [DEV Slow and Steady Challenge: Open Source AI](https://dev.to/challenges/slowandsteady).*
 
 ---
 
-## 📸 What Slothsort Does
+### The Confession: My Downloads Folder Was a Graveyard
 
-Slothsort monitors your designated folder (or runs on demand) and extracts snippets from text documents, Markdown notes, Python/JS source code, CSV data, and PDFs.
+I'll be honest: my `~/Downloads` folder was an absolute disaster. 
 
-![Slothsort Hero Dashboard](https://raw.githubusercontent.com/anurag/slothsort/main/docs/screenshots/01_hero_dashboard.png)
+At any given moment, it had around 600 files piled up. Half of them were named things like `scan0042.txt`, `doc1.txt`, `Resume_Royeb_v7 FINAL.pdf`, `unit3_draft.md`, or random export timestamps. Whenever I needed to find my quarterly tax receipt or a lease agreement, I had to open a dozen files individually to see what was inside.
 
-### Safe by Design:
-1. **Dry-Run Review First**: Slothsort never moves files behind your back. It generates proposed moves with confidence bars so you can approve them in bulk or inspect them individually.
-2. **Deep Semantic Renaming**: Rather than leaving a file named `scan0042.txt`, Gemma reads the interior text (*"GST registration certificate. Quarterly returns filed."*) and renames it to `Finance/gst-registration-ledger.txt`.
-3. **Collision-Proof**: Never overwrites an existing file; if a filename collision occurs, unique incrementing suffixes (`-1`, `-2`) are safely attached.
-4. **Single-Click Undo**: Every applied action is recorded in a local SQLite audit log. Made a mistake? Click **↺ Undo** to instantly restore the original file path.
+Every few months, I'd write a shell script to "fix" it:
+```bash
+# What every developer tries at first:
+mv *.pdf ~/Documents/PDFs/
+mv *.csv ~/Documents/Spreadsheets/
+```
 
-![Slothsort Proposed Moves](https://raw.githubusercontent.com/anurag/slothsort/main/docs/screenshots/02_gemma_classified_proposals.png)
+This never works. Real life doesn't care about file extensions. An electric bill, a college lecture slide, a flight ticket, and a contract are all `.pdf`. Dumping them all into a generic `PDFs` folder doesn't organize anything—it just moves the clutter into a subfolder.
 
----
+### Why I Refused to Use Cloud APIs
 
-## 💡 Why Open Innovation Matters Here
+I thought about wiring up a cloud LLM to look at the files. But two things stopped me:
 
-The challenge asked: *Why does open innovation matter for what you built?*
+1. **Privacy**: I am not comfortable sending my bank statements, tax forms, doctor bills, and personal notes to a third-party cloud API just to rename them. 
+2. **Cost and Limits**: If I want a background service continuously monitoring my folders, paying per token with rate limits makes no sense for a desktop utility.
 
-For a file organizer, open innovation isn't a bonus feature—it is the entire foundation:
+I wanted something that runs **100% locally on my own machine, works without an internet connection, costs nothing, and keeps every byte of personal data strictly on device**.
 
-1. **Air-Gapped Privacy (Zero Data Leakage)**: Financial statements, tax returns, and job resumes never leave the local machine. There are no API keys required, no external server logs, and no danger of personal files being ingested into proprietary training datasets.
-2. **Zero Cost & Infinite Runs**: Cloud LLMs charge per token. If you process 5,000 files, commercial API charges add up rapidly. With local open weights, running inference is 100% free forever.
-3. **Works Without an Internet Connection**: Whether you are on an airplane, off-grid, or dealing with network drops, Slothsort runs entirely offline.
-4. **Pluggable & Swappable Runtimes**: Because Slothsort connects to any standard OpenAI-compatible local API, you can swap backends effortlessly:
-   - **Ollama**: Default local engine (`http://127.0.0.1:11434/v1`)
-   - **LM Studio**: Visual desktop model loader (`http://127.0.0.1:1234/v1`)
-   - **llama.cpp / vLLM**: High-throughput inference servers
+That’s why I built **Slothsort**.
 
 ---
 
-## ⚖️ Where Open Beat Closed — And Where It Didn't
+### Why Slothsort? Channeling the Sloth
 
-Being honest about performance is essential:
+Tomorrow is International Sloth Day, and sloths have life figured out: move at your own pace, conserve energy, and don't panic.
 
-- **Where Open Won**: 
-  - Absolute privacy and confidence: confidential files remain strictly on device.
-  - Zero rate-limit anxiety: no `429 Too Many Requests` or unexpected bills.
-  - Offline capability: completely independent of third-party cloud availability.
-- **Where Closed / Cloud Still Leads**: 
-  - Raw throughput and latency: On a modest laptop CPU with integrated graphics, running inference on **Gemma 2 2B** took ~13 seconds per file. Cloud GPUs can return inferences in under 500 ms.
-- **How Slothsort Fails Gracefully**: 
-  - What happens if the local model is offline or stopped? Slothsort wraps model calls in a resilient `SafeClient`. If the model is unreachable, Slothsort displays a status notice, caps confidence at `0.60`, and seamlessly falls back to keyword and extension heuristics so scans never crash.
+Running an open-weight model locally on consumer hardware takes time. On my laptop CPU (integrated graphics, no discrete GPU), running inference on Google's **Gemma 2 (2B)** takes about 13 seconds per file. 
+
+Slothsort doesn't try to be a microsecond regex engine. It acts like a sloth: it works quietly in the background, takes its time reading the first 1 KB of text or the first page of a PDF, and carefully proposes clean folders and descriptive names. 
+
+And most importantly: **it never moves anything without your approval unless you tell it to.**
 
 ---
 
-## 📊 Real Benchmark: Rules vs. Local Gemma 2
+### How It Works
 
-To test whether the open model genuinely outperforms simple heuristic rules, Slothsort includes an automated evaluation harness (`benchmark.py`) with 21 synthetic files. The test set mixes obvious files with intentionally deceptive filenames where only the interior snippet reveals the true category.
+Slothsort is built with **FastAPI**, **SQLite**, and standard open-source tools:
 
-Model errors count as wrong answers (no silent fallback during benchmarks). Here are the measured results:
+1. **Snippet Extraction**: When a file lands in the watched folder, Slothsort reads the first 1,024 bytes (or the first page of a PDF using `pypdf`).
+2. **Prompting the Local Gemma Model**: It connects over standard OpenAI-compatible HTTP to a local runner (Ollama or LM Studio) running `gemma2:2b`.
+3. **Structured Classification**: The model inspects the snippet and categorizes it into a fixed target folder (`Finance`, `Career`, `Study`, `Code`, `Data`, `Images`, etc.) along with a clean lowercase hyphenated filename.
+4. **Defensive Validation**: Small models can get chatty. Slothsort validates the output with strict JSON extraction, strips markdown wrappers, limits stem lengths to 60 characters, and removes redundant extensions.
+5. **Human Review Dashboard**: You open the local dashboard at `http://127.0.0.1:8000`, review the proposed moves, click "Approve", or tweak the category with a dropdown.
+6. **Instant Undo**: Every action is logged to SQLite. If you ever change your mind, clicking "Undo" moves the file right back to its original location.
 
-| Backend | Correct | Accuracy | Avg Latency / File | Model Errors |
+Here is the clean dashboard after scanning a batch of cluttered files:
+
+![Slothsort Clean Dashboard](https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/01_hero_dashboard.png)
+
+And here are the classified proposals:
+
+![Gemma Classified Moves](https://raw.githubusercontent.com/Anurag-tech22/slothsort/main/docs/screenshots/02_gemma_classified_proposals.png)
+
+Look at `scan0042.txt`: instead of rotting in a generic documents folder, Gemma read the text inside, recognized the quarterly GST filing, and proposed `Finance / gst-registration-ledger.txt`.
+
+---
+
+### The Real Engineering Headaches I Had to Solve
+
+Building around a local open model was a great learning experience, but it came with real technical hurdles:
+
+#### 1. Small Models Love to Chat
+When you ask an open-weight 2B model for JSON, it often can't resist being polite:
+```
+Here is the JSON classification you requested:
+```json
+{
+  "category": "Finance",
+  "clean_name": "tax-invoice.txt",
+  "confidence": 0.95
+}
+```
+Hope this helps!
+```
+Passing that to `json.loads()` crashes immediately. I wrote a parser in `app/llm.py` that strips Markdown code fences, uses regex to isolate the outermost curly braces `{ ... }`, verifies that the category is in the allowed whitelist, and strips accidental file extensions from the stem.
+
+#### 2. Path Traversal & Collision Defense
+What happens if the model hallucinates a path like `../../../../Windows/System32`?
+In `app/organizer.py`, I implemented a strict `safe_join` check:
+```python
+def safe_join(root: Path, relative_dest: str) -> Path:
+    target = (root / relative_dest).resolve()
+    if not target.is_relative_to(root.resolve()):
+        raise UnsafePathError(f"Refusing to touch path outside watched dir: {target}")
+    return target
+```
+If a file already exists at the destination, Slothsort never overwrites it. It automatically appends `-1`, `-2`, etc., preserving the original file.
+
+#### 3. Honest Fallback When the Model Is Offline
+What if you haven't started Ollama or your laptop is running low on battery?
+Slothsort wraps the LLM client in a `SafeClient`. If the local model server is unreachable, Slothsort doesn't crash with a 500 error. It steps down to deterministic keyword and extension rules, caps confidence at `0.60`, and shows an honest notice in the UI:
+> *Notice: Local inference server unreachable. Rules fallback engaged.*
+
+#### 4. Learning from Corrections Without Fine-Tuning
+When you manually change a file's category in the dashboard dropdown, Slothsort computes an offline 256-dimensional feature hash of the snippet and stores it in SQLite. 
+When new files arrive, it runs a cosine similarity search across past corrections and injects your preferences into Gemma's prompt as few-shot examples. It adapts to your organization style without retraining weights.
+
+---
+
+### The Benchmark: Rules vs. Local Gemma 2
+
+I wanted real numbers, not marketing claims. I wrote an automated benchmark suite (`benchmark.py`) with 21 real-world synthetic test cases, mixing obvious files with files that have completely misleading names (like `thing.md` containing OS CPU scheduling notes, or `doc1.txt` containing a job application).
+
+Here are the measured results:
+
+| Classifier | Correct / Total | Accuracy | Avg Latency / File | Failures / Errors |
 |:---|:---:|:---:|:---:|:---:|
-| **Rules Heuristic** (measured) | 14 / 21 | 67% | 0 ms | 0 |
-| **Gemma 2 2B** (Local Open Weights) | **17 / 21** | **81%** | 13,009 ms | **0** |
+| **Standard Rules (Extensions + Keywords)** | 14 / 21 | 67% | 0 ms | 0 |
+| **Gemma 2 2B (Local Open Weights)** | **17 / 21** | **81%** | 13,009 ms | **0** |
 
-### Where the Open Model Shined:
-- `scan0042.txt`: Rules misfiled it as `Documents`. Gemma read the GST tax snippet and correctly routed it to `Finance`.
-- `doc1.txt`: Rules guessed `Documents`. Gemma read *"Dear hiring manager, I am excited to apply..."* and categorized it as `Career`.
-- `thing.md`: Rules guessed `Documents`. Gemma identified operating system CPU scheduling algorithms and filed it under `Study`.
-- `untitled.txt`: Rules guessed `Documents`. Gemma recognized Python code (`def two_sum`) and filed it under `Code`.
+Where the rules engine failed:
+- `scan0042.txt`: Rules guessed `Documents`. Gemma read the tax snippet and sorted it to `Finance`.
+- `doc1.txt`: Rules guessed `Documents`. Gemma read the cover letter and sorted it to `Career`.
+- `thing.md`: Rules guessed `Documents`. Gemma identified CPU scheduling algorithms and filed it under `Study`.
+- `untitled.txt`: Rules guessed `Documents`. Gemma detected Python syntax and filed it under `Code`.
+
+The 14% accuracy jump proves that inspecting content with a small open model solves cases that regex simply cannot handle.
 
 ---
 
-## 🧠 Interactive Learning Without Fine-Tuning
+### How to Run It on Your Machine
 
-Slothsort doesn't require heavyweight model retraining to adapt to your habits. 
+The project uses standard Python and FastAPI:
 
-When you change a category in the dropdown (for example, reclassifying a budget sheet to `Finance`), Slothsort computes a 256-dimensional offline hash embedding of the text and stem. When future files are scanned, Slothsort finds the top 3 similar past corrections via cosine distance and passes them into Gemma's prompt as few-shot in-context examples:
+```bash
+# 1. Clone the repository
+git clone https://github.com/Anurag-tech22/slothsort.git
+cd slothsort
 
+# 2. Set up virtual environment
+python -m venv .venv
+source .venv/bin/activate  # on Windows: .\.venv\Scripts\activate
+pip install -r requirements-dev.txt
+
+# 3. Pull Gemma 2B locally (via Ollama)
+ollama pull gemma2:2b
+
+# 4. Run the test suite (36 tests)
+python -m pytest -q
+
+# 5. Start Slothsort
+export LLM_BACKEND=openai
+export LLM_BASE_URL=http://127.0.0.1:11434/v1
+export DEMO_MODE=true
+uvicorn app.main:factory --factory --reload --port 8000
 ```
-Similar files this user already sorted (follow these habits):
-- "quarterly budget sheet.xyz" -> Finance (quarterly-budget-sheet)
-```
 
-Gemma immediately aligns with your past choices!
+Open `http://127.0.0.1:8000`, click **Add Test Files**, and hit **Scan Directory**.
 
 ---
 
-## 🌐 Community Wisdom
+### What I Learned About Open Source AI
 
-Developing local-first agentic tools builds directly on patterns established by the open-source community:
+Building Slothsort changed how I think about open-weight models:
 
-- **[Running Open Source LLMs Locally](https://dev.to)**: Community discussions frequently highlight Ollama and LM Studio as the most reliable conduits for hosting quantized GGUF models on consumer hardware without complex C++ toolchains.
-- **Local Privacy & Sandboxing**: Restricting local LLM ports (`127.0.0.1`) ensures local services remain isolated from network exposure while delivering air-gapped guarantees for sensitive documents.
+- **Open innovation enables private desktop software.** The privacy guarantee of a local open-weight model makes entirely new categories of personal tools viable. I would never feed my unorganized personal documents to a remote cloud API, but I will happily let an open model on localhost organize them.
+- **Small models are genuinely useful.** You don't need a massive 70B parameter model to sort files. A quantized 2B model running on a regular laptop CPU does the job with 81% accuracy.
+- **Slow and steady wins.** You don't need instant millisecond inference when software works in the background on your behalf. 
 
----
+Source code and tests are fully open source on GitHub:
+👉 **[GitHub Repository: Anurag-tech22/slothsort](https://github.com/Anurag-tech22/slothsort)**
 
-## 🛠️ Reproducibility & Stack
-
-- **Core**: Python 3.12+, FastAPI, SQLite
-- **Model**: Google Gemma 2 2B (running via Ollama / LM Studio)
-- **Frontend**: Vanilla CSS glassmorphic dashboard with live metric cards and keyboard shortcuts (`/` for instant search, `Esc` to clear)
-- **Tests**: 36 comprehensive pytest cases covering symlink protection, collision resistance, and canned JSON parsing
-- **Cloud Demo**: Multi-stage `Dockerfile` and `render.yaml` Blueprint for Render deployment in `DEMO_MODE=true`
-
-Source code and full setup instructions are open-source on GitHub. Let Slothsort do the slow and steady work, so you can channel your inner sloth!
+Let Slothsort do the slow and steady work, and enjoy your clean Downloads folder!
