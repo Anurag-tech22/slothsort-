@@ -32,16 +32,24 @@ class Settings:
     gguf_path: str = ""
     # Gemma through the Google Generative AI API (demo only)
     google_api_key: str = field(default="", repr=False)
-    gemma_model: str = "gemma-4-31b-it"
+    gemma_model: str = "gemma-2-2b-it"
 
     @classmethod
     def from_env(cls) -> "Settings":
+        backend = os.getenv("LLM_BACKEND", "").lower()
+        api_key = os.getenv("GOOGLE_API_KEY", "").strip()
+        demo = _flag("DEMO_MODE", False)
+        if not backend:
+            backend = "gemini" if (api_key and demo) else "openai"
+        elif backend == "gemini" and not api_key:
+            backend = "heuristic"
+
         s = cls(
             watch_dir=Path(os.getenv("WATCH_DIR", "./watched")).expanduser(),
             db_path=Path(os.getenv("DB_PATH", "./slothsort.db")).expanduser(),
-            llm_backend=os.getenv("LLM_BACKEND", "openai").lower(),
+            llm_backend=backend,
             dry_run=_flag("DRY_RUN", True),
-            demo_mode=_flag("DEMO_MODE", False),
+            demo_mode=demo,
             auto_watch=_flag("AUTO_WATCH", False),
             confidence_threshold=float(os.getenv("CONFIDENCE_THRESHOLD", "0.6")),
             poll_seconds=float(os.getenv("POLL_SECONDS", "5")),
@@ -49,8 +57,8 @@ class Settings:
             llm_base_url=os.getenv("LLM_BASE_URL", "http://127.0.0.1:1234/v1"),
             llm_model=os.getenv("LLM_MODEL", ""),
             gguf_path=os.getenv("GGUF_PATH", ""),
-            google_api_key=os.getenv("GOOGLE_API_KEY", ""),
-            gemma_model=os.getenv("GEMMA_MODEL", "gemma-4-31b-it"),
+            google_api_key=api_key,
+            gemma_model=os.getenv("GEMMA_MODEL", "gemma-2-2b-it"),
         )
         s.validate()
         return s

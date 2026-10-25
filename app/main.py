@@ -29,6 +29,10 @@ def create_app(settings: Settings | None = None, sloth: Sloth | None = None) -> 
     async def lifespan(app: FastAPI):
         if settings.demo_mode and not any(sloth.root.iterdir()):
             seed_samples(sloth.root)
+            try:
+                sloth.scan()
+            except Exception:
+                pass
         if settings.auto_watch:
             sloth.start_watching()
         yield

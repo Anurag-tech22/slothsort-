@@ -676,21 +676,34 @@ async function run(fn, okMsg) {
 function renderState() {
   const s = STATE, st = s.stats || {};
   const chips = $("chips");
-  const modelName = s.model.detail || s.model.backend;
+  const isRules = s.model.status === "rules" || s.model.backend === "rules";
+  const displayModel = isRules 
+    ? (s.demo_mode ? "Rules Engine" : "Rules Engine") 
+    : (s.model.detail || s.model.backend || "Gemma 2B").split("/").pop().replace(":latest", "");
+
   chips.replaceChildren(
-    el("span", { class: "chip" }, el("span", { class: "dot " + s.model.status }), "Model: ", el("b", {}, modelName), " (" + s.model.status + ")"),
+    el("span", { class: "chip" }, 
+      el("span", { class: "dot " + (s.model.status === "online" ? "online" : (isRules ? "amber" : "offline")) }), 
+      "Engine: ", el("b", {}, isRules ? (s.demo_mode ? "Cloud Demo (Rules)" : "Rules Mode") : displayModel)
+    ),
     el("span", { class: "chip" }, s.auto_watch ? "Watcher: Running" : "Watcher: Manual"),
   );
 
   const m = s.model, banner = $("banner");
-  banner.hidden = m.status === "online";
-  if (!banner.hidden) {
-    const msg = {
-      rules: "Local Gemma model is not running. Files will be sorted using keyword and extension rules.",
-      offline: "Local model server unreachable at " + (s.llm_base_url || "localhost") + ". Falling back to rules.",
-      degraded: "Model request failed; using rules fallback.",
-    }[m.status] || m.detail;
-    banner.replaceChildren(el("b", {}, m.status === "rules" ? "Rules Mode: " : "Notice: "), msg);
+  if (s.demo_mode && isRules) {
+    banner.hidden = false;
+    banner.replaceChildren(
+      el("b", {}, "Cloud Demo Sandbox: "), 
+      "Files are classified with rules fallback. For full local open-weight Gemma 2B AI inference, clone and run on your laptop, or add a free GOOGLE_API_KEY in Render."
+    );
+  } else if (m.status !== "online" && !isRules) {
+    banner.hidden = false;
+    const msg = m.status === "offline" 
+      ? "Local model server unreachable at " + (s.llm_base_url || "localhost") + ". Falling back to rules."
+      : "Model request failed; using rules fallback.";
+    banner.replaceChildren(el("b", {}, "Notice: "), msg);
+  } else {
+    banner.hidden = true;
   }
 
   const waiting = st.proposed || 0, done = st.applied || 0;
@@ -698,8 +711,10 @@ function renderState() {
   $("stat-queue-sub").textContent = waiting === 1 ? "1 file awaiting review" : `${waiting} files awaiting review`;
   $("stat-tidied").textContent = done;
   $("stat-saved").textContent = `${s.minutes_saved_estimate || 0} min`;
-  $("stat-model").textContent = modelName.split("/").pop().replace(":latest", "");
-  $("stat-model-sub").textContent = m.status === "online" ? "🟢 Localhost (Online)" : "🔴 Offline (Rules active)";
+  $("stat-model").textContent = displayModel;
+  $("stat-model-sub").textContent = s.model.status === "online" 
+    ? "🟢 Online (Active)" 
+    : (isRules ? (s.demo_mode ? "☁️ Cloud Demo Mode" : "Rules Active") : "🔴 Offline");
 
   $("summary").replaceChildren(
     el("strong", {}, waiting + (waiting === 1 ? " file" : " files")), " waiting for you. ",
@@ -783,7 +798,11 @@ async function refresh() {
   if (!items.length) {
     list.append(el("div", { class: "empty" }, 
       el("span", { class: "empty-icon" }, SEARCH ? "🔍" : "🦥"),
-      SEARCH ? "No matching files found." : "No files pending. Put files in " + STATE.watch_dir + " and click 'Scan folder'."
+      SEARCH ? "No matching files found." : (
+        STATE.demo_mode 
+          ? "No files pending. Click 'Add sample files' above and then 'Scan folder' to explore!" 
+          : "No files pending. Put files in " + STATE.watch_dir + " and click 'Scan folder'."
+      )
     ));
   } else {
     items.forEach((a) => list.append(renderRow(a)));

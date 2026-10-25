@@ -62,7 +62,7 @@ class Sloth:
     def model_status(self) -> dict:
         """online | degraded | offline | rules, cached for 10s so the UI can poll."""
         if self.client.name == "rules":
-            return {"backend": "rules", "status": "rules", "detail": "No AI model: simple extension and keyword rules."}
+            return {"backend": "rules", "status": "rules", "detail": "Keyword & Extension Heuristics"}
         at, cached = self._ping_cache
         if time.time() - at > 10:
             cached = self.client.ping()
