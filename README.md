@@ -272,6 +272,22 @@ Slothsort supports multiple interchangeable inference providers:
 
 ---
 
+## ☁️ Deploying on Render (Free Cloud Demo)
+
+You can deploy a live web demo of Slothsort on [Render](https://render.com) in 2 minutes:
+
+### 1-Click Blueprint Deployment:
+1. Log in to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** → **Blueprint**.
+3. Connect your repository: `https://github.com/Anurag-tech22/slothsort-`
+4. Render will automatically detect `render.yaml`.
+5. Click **Apply**:
+   - By default, it runs in `DEMO_MODE=true` with `LLM_BACKEND=heuristic` (works instantly out of the box with zero external API keys!).
+   - **Optional**: To use Gemma via Google AI Studio in the cloud demo, set `LLM_BACKEND=gemini` and enter your free `GOOGLE_API_KEY`.
+6. Once built, Render will generate a live URL (e.g. `https://slothsort.onrender.com`) for your demo.
+
+---
+
 ## 📂 Repository Layout
 
 ```

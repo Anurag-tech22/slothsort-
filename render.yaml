@@ -6,10 +6,10 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DEMO_MODE
-        value: "true"            # sample files only, never real files
+        value: "true"            # Runs on sample demo files only
       - key: LLM_BACKEND
-        value: gemini            # Gemma served by Google; the local-first version uses LM Studio
+        value: heuristic         # Works out of the box with zero external keys; switch to 'gemini' if you supply GOOGLE_API_KEY
       - key: GEMMA_MODEL
-        value: gemma-4-31b-it    # check the exact name in Google AI Studio
+        value: gemma-2-2b-it     # Google AI Studio Gemma model
       - key: GOOGLE_API_KEY
-        sync: false              # Render will ask you for it
+        sync: false              # Optional: Add your free Google AI Studio key if using LLM_BACKEND=gemini
