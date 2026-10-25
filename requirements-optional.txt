@@ -1,0 +1,2 @@
+# Only for LLM_BACKEND=llamacpp (Gemma GGUF loaded in-process, no server):
+llama-cpp-python>=0.2.90
