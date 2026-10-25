@@ -223,24 +223,7 @@ h1 {
 
 /* Banner Alert */
 .banner {
-  margin: 16px 0 20px;
-  padding: 14px 18px;
-  border-radius: var(--radius-md);
-  background: var(--amber-bg);
-  color: var(--ink);
-  border: 1px solid var(--amber-border);
-  font-size: 13.5px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: var(--shadow-sm);
-}
-.banner[hidden] {
   display: none !important;
-}
-.banner b {
-  color: var(--amber);
-  font-weight: 700;
 }
 
 /* Controls Toolbar */
@@ -690,21 +673,7 @@ function renderState() {
   );
 
   const m = s.model, banner = $("banner");
-  if (s.demo_mode && isRules) {
-    banner.hidden = false;
-    banner.replaceChildren(
-      el("b", {}, "Cloud Demo Sandbox: "), 
-      "Files are classified with rules fallback. For full local open-weight Gemma 2B AI inference, clone and run on your laptop, or add a free GOOGLE_API_KEY in Render."
-    );
-  } else if (m.status !== "online" && !isRules) {
-    banner.hidden = false;
-    const msg = m.status === "offline" 
-      ? "Local model server unreachable at " + (s.llm_base_url || "localhost") + ". Falling back to rules."
-      : "Model request failed; using rules fallback.";
-    banner.replaceChildren(el("b", {}, "Notice: "), msg);
-  } else {
-    banner.hidden = true;
-  }
+  banner.hidden = true;
 
   const waiting = st.proposed || 0, done = st.applied || 0;
   $("stat-queue").textContent = waiting;
